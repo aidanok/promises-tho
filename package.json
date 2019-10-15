@@ -1,7 +1,7 @@
 {
   "name": "promise-tho",
   "version": "1.0.0",
-  "description": "Some typescript higher order functions for wrapping promise-based functions for some networking or IO scenarios, retries, backoff and batching.",
+  "description": "Some typescript higher order functions for wrapping promise-based functions for networking scenarios, retries, backoff and batching.",
   "scripts": {
   },
   "keywords": [

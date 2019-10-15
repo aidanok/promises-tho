@@ -107,7 +107,8 @@ while (job.pending.length) {
 
 You are free to modify the `completed` array during iteration if you want, it just gets appended to. 
 The `pending` array will have items removed during iteration, so if you need to, keep a copy of it 
-before you start. The delay will be applited between iterations, starting only with the 2nd batch.
+before you start. The delay will be applied between iterations (default 150ms), starting only with the 
+2nd batch.
 
 
 NOTE: `retryWithBackoff` will wrap a function with any number of arguments, but the batching functions
