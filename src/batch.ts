@@ -1,5 +1,5 @@
 import debug from "debug";
-import { PromiseReturningOneArg } from "./types";
+import { OneArgFunctionReturningPromise } from "./types";
 
 interface Options {
   batchSize?: number
@@ -20,11 +20,12 @@ interface Options {
  *
  */
 
-export function batch<T extends PromiseReturningOneArg<P, R>, P, R>
-  (optsOrFn: Options | T, fn?: T, opts?: Options): (params: P[])=> Promise<R[]> {
+
+export function batch<P, R>
+  (optsOrFn: Options | OneArgFunctionReturningPromise<P, R>, fn?: OneArgFunctionReturningPromise<P, R>, opts?: Options): (params: P[])=> Promise<R[]> {
 
   if (!fn) {
-    fn = optsOrFn as T;
+    fn = optsOrFn as OneArgFunctionReturningPromise<P, R>;
     optsOrFn = undefined as any;
   }
   

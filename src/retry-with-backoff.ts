@@ -1,5 +1,5 @@
 import debug from "debug";
-import { PromiseReturning, PromiseReturnType } from "./types";
+import { FunctionReturningPromise, PromiseReturnType } from "./types";
 
 interface Options  { tries?: number, startMs?: number, pow?: number, maxMs?: number, jitter?: number }
 
@@ -22,7 +22,7 @@ interface Options  { tries?: number, startMs?: number, pow?: number, maxMs?: num
  *
  */
 
-export function retryWithBackoff<T extends PromiseReturning>
+export function retryWithBackoff<T extends FunctionReturningPromise>
   (optsOrFn: Options | T, fn?: T) : (...args: Parameters<T>) => Promise<PromiseReturnType<T>>
  {
   

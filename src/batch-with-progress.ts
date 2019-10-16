@@ -1,5 +1,5 @@
 import debug from 'debug';
-import { PromiseReturning, PromiseReturnType, PromiseReturningOneArg } from './types';
+import { FunctionReturningPromise, PromiseReturnType, OneArgFunctionReturningPromise } from './types';
 
 export interface BatchJob<P, R> {
   pending: P[],
@@ -33,12 +33,12 @@ interface Options {
  */
 
 
-export function batchWithProgress<T extends PromiseReturningOneArg<P, R>, P, R>
-  (optsOrFn: Options | T, fn?: T) : (job: BatchJob<P, R>) => Promise<BatchJob<P, R>>
+export function batchWithProgress<P, R>
+  (optsOrFn: Options | OneArgFunctionReturningPromise<P, R>, fn?: OneArgFunctionReturningPromise<P, R>) : (job: BatchJob<P, R>) => Promise<BatchJob<P, R>>
   {
   
   if (!fn) {
-    fn = optsOrFn as T;
+    fn = optsOrFn as OneArgFunctionReturningPromise<P, R>;
     optsOrFn = undefined as any;
   }
   const log = debug('promises-tho:batch-with-progress');
