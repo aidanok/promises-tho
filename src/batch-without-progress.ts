@@ -28,6 +28,8 @@ export function batchWithoutProgress<T extends PromiseReturningOneArg<P, R>, P, 
     optsOrFn = undefined as any;
   }
   
+  const log =  debug('promises-tho:batch');
+  
   const options = 
     Object.assign({
       batchSize: 4,
@@ -35,6 +37,8 @@ export function batchWithoutProgress<T extends PromiseReturningOneArg<P, R>, P, 
     },
   optsOrFn);
   
+
+
   return async function(requests: P[]): Promise<R[]> {
 
     const context = {
@@ -51,19 +55,16 @@ export function batchWithoutProgress<T extends PromiseReturningOneArg<P, R>, P, 
       context.completed = context.completed.concat(results);
       context.pending = context.pending.slice(options.batchSize);
      
-      debug('promise-tho:batch-without-progress')
-        (`Batch of ${results.length} took ${(Date.now() - t1) / 1000} seconds`);
+     log(`Batch of ${results.length} took ${(Date.now() - t1) / 1000} seconds`);
 
       if (context.pending.length > 0) {
         const delayMs = options.batchDelayMs;
-        debug('promise-tho:batch-without-progress')
-          (`Delaying ${(Date.now() - t1) / 1000} seconds between batches`);
+        log(`Delaying ${(Date.now() - t1) / 1000} seconds between batches`);
         await new Promise(res => setTimeout(res, delayMs));
       }
     }
     
-    debug('promise-tho:batch-without-progress')
-        (`Total Batch of ${context.completed.length} took ${(Date.now() - t0) / 1000} seconds`);
+    log(`Total Batch of ${context.completed.length} took ${(Date.now() - t0) / 1000} seconds`);
 
     return context.completed;
   }

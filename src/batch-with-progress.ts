@@ -41,6 +41,7 @@ export function batchWithProgress<T extends PromiseReturningOneArg<P, R>, P, R>
     fn = optsOrFn as T;
     optsOrFn = undefined as any;
   }
+  const log = debug('promises-tho:batch-with-progress');
 
   const options = 
     Object.assign({
@@ -78,13 +79,11 @@ export function batchWithProgress<T extends PromiseReturningOneArg<P, R>, P, R>
       current.inProgress === current.pending.length > 0;
       current.batched = batch.length;  
 
-      debug('promise-tho:batch-with-progress')
-        (`Batch of ${results.length} took ${(Date.now() - t1) / 1000} seconds`);
+      log(`Batch of ${results.length} took ${(Date.now() - t1) / 1000} seconds`);
     }
 
     if (!current.inProgress) {
-      debug('promise-tho:batch-with-progress')
-        (`Batch complete`);
+      log(`Batch complete`);
     }
     return current;
   }

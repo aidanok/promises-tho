@@ -35,9 +35,11 @@ export function retryWithBackoff<T extends PromiseReturning>
   if (!fn || typeof fn !== 'function') {
     throw new Error('Invalid arguments');
   }
+
+  const log = debug('promises-tho:retry-with-backoff');
   
   const { tries, startMs, pow, maxMs, jitter } = 
-    Object.assign({ tries: 6, startMs: 250, pow: 3, maxMs: 300000, jitter: 0.25 }, optsOrFn);
+  Object.assign({ tries: 6, startMs: 250, pow: 3, maxMs: 300000, jitter: 0.25 }, optsOrFn);
 
   return async function(...args: Parameters<T>): Promise<PromiseReturnType<T>> {
     let errors = 0;
@@ -50,8 +52,7 @@ export function retryWithBackoff<T extends PromiseReturning>
         } else {
           let delay = Math.min(maxMs, startMs*Math.pow(errors,pow));
           delay = delay - (Math.random() * delay * jitter);
-          debug('promise-tho:retry-with-backoff')
-            (`${fn!.name} failed, retrying in ${delay.toFixed(0)}ms`);
+          log(`${fn!.name} failed, retrying in ${delay.toFixed(0)}ms`);
           await new Promise(res => setTimeout(res, delay));
         }
       }
