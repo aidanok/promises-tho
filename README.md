@@ -1,33 +1,33 @@
 
-Couple of **T**ypescript **h**igher **o**rder functions for use with promise based networking or other IO apis.
+Couple of **T**ypescript **h**igher **o**rder functions for use with promise based network or other IO apis.
 
 Why use this? 
 
-I wrote this for myself because I got tired of writing  `while(--tries) await something ` type loops and
+I wrote it because I got tired of writing  `while(--tries) await something ` type loops and
 other on the fly stuff, but here's why you might want to use it:  
 
 - Keeps type signatures if you are using TypeScript. 
 - Sensible defaults for use in browser scenarios, where concurrent requests are limited.
-- Easily tweakable options, use it in nodejs/server side scenarios too.
+- Easily tweakable options, use it in nodejs/server side too.
 - Just a few simple, composable functions
   - `retryWithBackoff` - Wraps a promise returning function with retries and exponential backoff. 
-  - `batchWithoutProgress` - Splits a large group of operations into batches 
+  - `batch` - Splits a large group of operations into batches 
   - `batchWithProgress` - Splits a large group of operations into batches while returning intermediate results. 
 
 
-Uses https://www.npmjs.com/package/debug for logging, using the `promise-tho` namespace. enable `promise-tho:*` in your environment to see retries, timings, delays etc.  
+Uses https://www.npmjs.com/package/debug for logging, using the `promises-tho` namespace. enable `promises-tho:*` in your environment to see retries, timings, delays etc.  
 
-Quick examples:
 
 See [src/](src/) for JsDoc full options & defaults.  
 
+Quick examples:
 
 ### Retry with backoff
 
 ```typescript 
 
 // some promise returning function. 
-const getSomething = async (id: number) => fetch(`http://example.com/api/foo/${id}`) 
+const getSomething = async (id: number) => fetch(`http://example.com/api/foo/${id}`).then(x => x.json() as Foo)
 
 const getSomethingWithRetries = retryWithBackoff(getSomething); 
 
@@ -39,7 +39,7 @@ const foo = await getSomethingWithRetries(myFooId);
 ```typescript
 
 // same but set some options
-const reallyGetSomething = retryWithBackoff(getSomething, { tries: 100, pow: 1.2 }); 
+const reallyGetSomething = retryWithBackoff({ tries: 100, pow: 1.2 }, getSomething); 
 
 const foo = await reallyGetSomething(myFooId);
 
@@ -52,12 +52,12 @@ const foo = await reallyGetSomething(myFooId);
 
 const getSomethingWithRetries = retryWithBackoff(getSomething); 
 
-const getSomethingBatched = batchWithoutProgress(getSomethingWithRetries); 
+const getSomethingBatched = batch({ batchSize: 4, batchDelay: 150 }, getSomethingWithRetries); 
 
 // if getSomething was typed as (x: number) => Promise<Foo> , 
 // getSomethingBatched will be typed as (x: number[]) => Promise<Foo[]>
 
-const results = await getSomethingBatched([1,2,3,4,5,6,7,8,9], { batchSize: 4, batchDelay: 150 });
+const results = await getSomethingBatched([1,2,3,4,5,6,7,8,9]);
 
 
 ```
@@ -92,8 +92,7 @@ while (job.pending.length) {
   if (job.batched) {
     // .batched is the number of results put into completed array in the last iteration.
     // get the last N from the `.completed` array by passing a negative index to slice, 
-    // these are the items 
-    let latestThingsWeGot = job.completed.slice(-job.batched); 
+    const latestThingsWeGot = job.completed.slice(-job.batched); 
     // do something with the results from the latest iteration, maybe diplay in UI 
     // or some start some other dependent async work. 
   }
@@ -114,8 +113,6 @@ before you start. The delay will be applied between iterations (default 150ms), 
 NOTE: `retryWithBackoff` will wrap a function with any number of arguments, but the batching functions
 will only wrap a function with **exactly one argument** . This is the most common case and makes for much 
 nicer ergonomics. If you need to, you can make a small wrapper to your function to take only one argument.
-
-
 
 
 
