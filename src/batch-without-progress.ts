@@ -1,4 +1,5 @@
 import debug from "debug";
+import { PromiseReturningOneArg } from "./types";
 
 interface Options {
   batchSize?: number
@@ -12,25 +13,27 @@ interface Options {
  * Note: fn must take exactly one argument. If you need to use a function taking 
  * multiple arguments, make a small wrapper. 
  * 
- * @param fn the function to wrap
  * @param opts options
  * @param opts.batchSize default 4. the number of concurrent executions of fn
  * @param opts.batchDelayMs default 150. milliseconds to delay between batches. Only applied from the 2d batch onwards. 
+ * @param fn the function to wrap
  *
  */
 
-export function batchWithoutProgress<P, R>
-  (fn: (p: P)=>Promise<R>, opts?: Options) 
-  : 
-  (params: P[])=> Promise<R[]>
-  {
+export function batchWithoutProgress<T extends PromiseReturningOneArg<P, R>, P, R>
+  (optsOrFn: Options | T, fn?: T, opts?: Options): (params: P[])=> Promise<R[]> {
+
+  if (!fn) {
+    fn = optsOrFn as T;
+    optsOrFn = undefined as any;
+  }
   
   const options = 
     Object.assign({
-      batchSize: 4, 
+      batchSize: 4,
       batchDelayMs: 150,
-    }, 
-  opts);
+    },
+  optsOrFn);
   
   return async function(requests: P[]): Promise<R[]> {
 
@@ -43,7 +46,7 @@ export function batchWithoutProgress<P, R>
 
     while (context.pending.length > 0) {
       const t1 = Date.now(); 
-      const batch = context.pending.slice(0, options.batchSize).map(x => fn(x))
+      const batch = context.pending.slice(0, options.batchSize).map(x => fn!(x))
       const results = await Promise.all(batch);
       context.completed = context.completed.concat(results);
       context.pending = context.pending.slice(options.batchSize);

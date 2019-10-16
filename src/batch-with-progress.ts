@@ -1,5 +1,5 @@
 import debug from 'debug';
-
+import { PromiseReturning, PromiseReturnType, PromiseReturningOneArg } from './types';
 
 export interface BatchJob<P, R> {
   pending: P[],
@@ -13,6 +13,8 @@ interface Options {
   batchDelayMs?: number  
 }
 
+
+
 /**
  * Wraps a Promise returning function that you want to call in batches. 
  * This version passes back intermediate results to the caller, who can do something 
@@ -23,24 +25,29 @@ interface Options {
  * Note: fn must take exactly one argument. If you need to use a function taking 
  * multiple arguments, make a small wrapper. 
  * 
- * @param fn the function to wrap
  * @param opts options
  * @param opts.batchSize default 4. the number of concurrent executions of fn
  * @param opts.batchDelayMs default 150. milliseconds to delay between batches. Only applied from the 2d batch onwards.
+ * @param fn the function to wrap
  *  
  */
-export function batchWithProgress<P, R>
-  (fn: (a: P) => Promise<R>, opts?: Options) 
-  :
-  (job: BatchJob<P, R>) => Promise<BatchJob<P, R>>
+
+
+export function batchWithProgress<T extends PromiseReturningOneArg<P, R>, P, R>
+  (optsOrFn: Options | T, fn?: T) : (job: BatchJob<P, R>) => Promise<BatchJob<P, R>>
   {
   
+  if (!fn) {
+    fn = optsOrFn as T;
+    optsOrFn = undefined as any;
+  }
+
   const options = 
     Object.assign({
       batchSize: 4,
       batchDelayMs: 150,
     },
-  opts);
+  optsOrFn);
 
   return async function(job: BatchJob<P, R>): Promise<BatchJob<P, R>> {
     
@@ -64,7 +71,7 @@ export function batchWithProgress<P, R>
         await new Promise(res => setTimeout(res, delayMs));
       }
       const t1 = Date.now(); 
-      const batch = current.pending.slice(0, options.batchSize).map(x => fn(x))
+      const batch = current.pending.slice(0, options.batchSize).map(x => fn!(x))
       const results = await Promise.all(batch);
       current.completed = current.completed.concat(results);
       current.pending = current.pending.slice(options.batchSize);
