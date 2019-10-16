@@ -3,7 +3,7 @@ Couple of **T**ypescript **h**igher **o**rder functions for use with promise bas
 
 Why use this? 
 
-I wrote it because I got tired of writing  `while(--tries) await something ` type loops and
+I got tired of writing  `while(--tries) await something ` type loops and
 other on the fly stuff, but here's why you might want to use it:  
 
 - Keeps type signatures if you are using TypeScript. 
