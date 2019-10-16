@@ -1,6 +1,10 @@
 
 Couple of **T**ypescript **h**igher **o**rder functions for use with promise based network or other IO apis.
 
+`npm install promises-tho`
+
+Packaged using @pika/pack for web,node,typescript,javascript & deno.
+
 Why use this? 
 
 I got tired of writing  `while(--tries) await something ` type loops and
@@ -17,7 +21,6 @@ other on the fly stuff, but here's why you might want to use it:
 
 Uses https://www.npmjs.com/package/debug for logging, using the `promises-tho` namespace. enable `promises-tho:*` in your environment to see retries, timings, delays etc.  
 
-
 See [src/](src/) for JsDoc full options & defaults.  
 
 Quick examples:
@@ -25,6 +28,8 @@ Quick examples:
 ### Retry with backoff
 
 ```typescript 
+
+import { retryWithBackoff } from "promises-tho";
 
 // some promise returning function. 
 const getSomething = async (id: number) => fetch(`http://example.com/api/foo/${id}`).then(x => x.json() as Foo)
@@ -50,6 +55,8 @@ const foo = await reallyGetSomething(myFooId);
 
 ```typescript
 
+import { batch, retryWithBackoff } from "promises-tho";
+
 const getSomethingWithRetries = retryWithBackoff(getSomething); 
 
 const getSomethingBatched = batch({ batchSize: 4, batchDelay: 150 }, getSomethingWithRetries); 
@@ -72,6 +79,8 @@ Note we wrap the original `getSomething` with retries/backoff and then use that 
 
 
 ```typescript
+
+import { batchWithProgress, retryWithBackoff } from "promises-tho";
 
 const getSomethingWithRetries = retryWithBackoff(getSomething); 
 
