@@ -20,7 +20,7 @@ interface Options {
  *
  */
 
-export function batchWithoutProgress<T extends PromiseReturningOneArg<P, R>, P, R>
+export function batch<T extends PromiseReturningOneArg<P, R>, P, R>
   (optsOrFn: Options | T, fn?: T, opts?: Options): (params: P[])=> Promise<R[]> {
 
   if (!fn) {
