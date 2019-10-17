@@ -52,6 +52,7 @@ export function retryWithBackoff<T extends FunctionReturningPromise>
         } else {
           let delay = Math.min(maxMs, startMs*Math.pow(errors,pow));
           delay = delay - (Math.random() * delay * jitter);
+          console.error(e);
           log(`${fn!.name} failed, retrying in ${delay.toFixed(0)}ms`);
           await new Promise(res => setTimeout(res, delay));
         }
