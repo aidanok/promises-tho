@@ -1,8 +1,9 @@
 {
   "name": "promises-tho",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Some typescript higher order functions for wrapping promise-based functions for networking scenarios, retries, backoff and batching.",
   "scripts": {
+    "build": "pika build"
   },
   "keywords": [
     "promise",
@@ -23,9 +24,16 @@
     "ts"
   ],
   "author": "therealaok@gmail.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aokisok/promises-tho.git"
+  },
   "license": "MIT",
   "@pika/pack": {
     "pipeline": [
+      [
+        "@pika/plugin-standard-pkg"
+      ],
       [
         "@pika/plugin-ts-standard-pkg"
       ],
@@ -41,12 +49,13 @@
     ]
   },
   "devDependencies": {
+    "@pika/pack": "0.5.0",
     "@pika/plugin-build-deno": "0.6.1",
     "@pika/plugin-build-node": "0.6.1",
     "@pika/plugin-build-web": "0.6.1",
+    "@pika/plugin-standard-pkg": "0.6.1",
     "@pika/plugin-ts-standard-pkg": "0.6.1",
     "@pika/types": "0.6.1",
-    "@pika/pack": "0.5.0",
     "typescript": "3.6.4"
   },
   "dependencies": {
