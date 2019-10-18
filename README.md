@@ -22,6 +22,23 @@ other on the fly stuff, but here's why you might want to use it:
 Uses https://www.npmjs.com/package/debug for logging, using the `promises-tho` namespace. enable `promises-tho:*` in your environment to see retries, timings, delays etc.  
 
 See [src/](src/) for JsDoc full options & defaults.  
+ 
+Very important note about error handling and the examples: Error handling is very dependent on what api you are working with,
+and what your goals are. This library does *not* give you any tools to do 'conditional' retries, etc. You should handle 
+that in the function you wrap. The examples below use `fetch` directly, which doesn't throw on *any* HTTP errors.
+Other HTTP libraries throw on some errors but not on others, etc, so *they are not real examples of a function you
+would wrap*
+
+You should instead be using a function which verifies the data response from the server does something along
+the lines of any of these:  
+
+- Returns `Foo | OtherResponse | OtherResponse2` or throws.
+- Returns `Foo | null` or throws. 
+- Returns `Foo` exactly or throws. 
+
+IE, you should account for the possible responses, *verify* you got a valid one of them and otherwise throw an error, which will 
+cause a retry. The same applies for writing data rather than reading, you should check the response and verify that it was indeed
+succesful, throwing or returning one of a set of values as appropriate. 
 
 Quick examples:
 
@@ -32,7 +49,8 @@ Quick examples:
 import { retryWithBackoff } from "promises-tho";
 
 // some promise returning function. 
-const getSomething = async (id: number) => fetch(`http://example.com/api/foo/${id}`).then(x => x.json() as Foo)
+const getSomething = async (id: number) => 
+  fetch(`http://example.com/api/foo/${id}`).then(x => x.json() as Foo)
 
 const getSomethingWithRetries = retryWithBackoff(getSomething); 
 
@@ -73,6 +91,21 @@ getSomethingBatched will exectue `getSomethingWithRetries` 4 items at a time, de
 and returning when the entire batch is complete. The options argument is optional, values shown are the default.
 
 Note we wrap the original `getSomething` with retries/backoff and then use that function for the batching.
+We can of course do this do all of this inline:
+
+```typescript
+
+import { batch, retryWithBackoff } from "promises-tho";
+
+const getFoosBatched = batch(
+    { batchSize: 5, batchDelay: 20 },
+    retryWithBackoff(
+      { tries: 10, pow: 2 }, 
+      (id: number) => fetch(`http://foo.api/foos/${id}`).then(resp => resp.json() as Foo)
+    )
+);
+
+```
 
 
 ### Batching with intermediate results
