@@ -60,7 +60,7 @@ export function batch<P, R>
 
       if (context.pending.length > 0) {
         const delayMs = options.batchDelayMs;
-        log(`Delaying ${(Date.now() - t1) / 1000} seconds between batches`);
+        log(`Delaying ${delayMs / 1000} seconds between batches`);
         await new Promise(res => setTimeout(res, delayMs));
       }
     }
