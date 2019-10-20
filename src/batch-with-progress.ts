@@ -32,7 +32,6 @@ interface Options {
  *  
  */
 
-
 export function batchWithProgress<P, R>
   (optsOrFn: Options | OneArgFunctionReturningPromise<P, R>, fn?: OneArgFunctionReturningPromise<P, R>) : (job: BatchJob<P, R>) => Promise<BatchJob<P, R>>
   {

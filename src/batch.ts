@@ -20,7 +20,6 @@ interface Options {
  *
  */
 
-
 export function batch<P, R>
   (optsOrFn: Options | OneArgFunctionReturningPromise<P, R>, fn?: OneArgFunctionReturningPromise<P, R>, opts?: Options): (params: P[])=> Promise<R[]> {
 
@@ -38,8 +37,6 @@ export function batch<P, R>
     },
   optsOrFn);
   
-
-
   return async function(requests: P[]): Promise<R[]> {
 
     const context = {
@@ -53,10 +50,11 @@ export function batch<P, R>
       const t1 = Date.now(); 
       const batch = context.pending.slice(0, options.batchSize).map(x => fn!(x))
       const results = await Promise.all(batch);
+
       context.completed = context.completed.concat(results);
       context.pending = context.pending.slice(options.batchSize);
      
-     log(`Batch of ${results.length} took ${(Date.now() - t1) / 1000} seconds`);
+      log(`Batch of ${results.length} took ${(Date.now() - t1) / 1000} seconds`);
 
       if (context.pending.length > 0) {
         const delayMs = options.batchDelayMs;
